@@ -1,6 +1,10 @@
 type ('a) predicate = 'a -> bool;
 type ('a, 'b) matcher = 'a -> 'b predicate;
 
+fun assertTrue (predicate: unit predicate) = predicate ();
+
+fun assertFalse (predicate: unit predicate) = not (predicate ());
+
 fun assertThat actual (matcher:('a, 'b) matcher) arguments = matcher arguments actual;
 
 local
