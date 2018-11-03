@@ -1,11 +1,21 @@
 type ('a) predicate = 'a -> bool;
 type ('a, 'b) matcher = 'a -> 'b predicate;
 
-fun assertTrue (predicate: unit predicate) = predicate ();
+exception Assert of string option;
 
-fun assertFalse (predicate: unit predicate) = not (predicate ());
+fun assertTrue (predicate: unit predicate) = if predicate () then () else raise Assert NONE;
 
-fun assertThat actual (matcher:('a, 'b) matcher) arguments = matcher arguments actual;
+fun assertFalse (predicate: unit predicate) = if predicate () then raise Assert NONE else ();
+
+fun assertThat actual (matcher:('a, 'b) matcher) arguments = if matcher arguments actual then () else raise Assert NONE;
+
+local
+exception NotThrown;
+in
+fun assertThrows func expected = (func (); raise NotThrown)
+    handle NotThrown => raise Assert NONE
+         | actual => if exnName expected = exnName actual then () else raise Assert NONE;
+end;
 
 local
 fun equalsToInner expected actual = op=(actual, expected);
